@@ -162,3 +162,41 @@ export default function Chat({ user, onLogout }) {
     </div>
   );
 }
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
+
+// Mapping moods to numerical values for the graph
+const moodMap = { "Sad": 1, "Anxious": 2, "Neutral": 3, "Productive": 4, "Calm": 5 };
+
+const Sidebar = ({ sessions, onDelete, onSelect, currentId }) => {
+  // Prepare data for the trend graph
+  const chartData = sessions.slice(-7).map(s => ({
+    moodValue: moodMap[s.mood] || 3
+  }));
+
+  return (
+    <div className="sidebar">
+      <h2>History</h2>
+      <div className="session-list">
+        {sessions.map(s => (
+          <div key={s.id} className={`session-item ${currentId === s.id ? 'active' : ''}`}>
+            <span onClick={() => onSelect(s.id)}>
+              {s.mood === "Calm" ? "🌿" : "💬"} {s.title}
+            </span>
+            <button className="delete-icon" onClick={() => onDelete(s.id)}>🗑️</button>
+          </div>
+        ))}
+      </div>
+
+      {/* Mood Trend Graph Section */}
+      <div className="mood-trend">
+        <h4>7-Day Trend</h4>
+        <ResponsiveContainer width="100%" height={80}>
+          <LineChart data={chartData}>
+            <Line type="monotone" dataKey="moodValue" stroke="#81c784" strokeWidth={2} dot={false} />
+            <YAxis hide domain={[1, 5]} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
